@@ -1,0 +1,55 @@
+<html>
+<body>
+
+<p id="demo"></p>
+
+<script>
+
+function getElementsByXPath(doc, xpath, parent)
+{
+    let results = [];
+    let query = doc.evaluate(xpath, parent || doc,
+        null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    for (let i = 0, length = query.snapshotLength; i < length; ++i) {
+        results.push(query.snapshotItem(i));
+    }
+    return results;
+}
+
+function getValueByXPath(doc, xpath, parent)
+{
+    let query = doc.evaluate(xpath, parent || doc,
+        null, XPathResult.STRING_TYPE, null);
+    return query.stringValue;
+}
+
+var text = `
+<bookList>
+    <book id="1"><title>Book A</title><price>501</price></book>
+    <book id="2"><title>Book B</title><price>502</price></book>
+    <book id="3"><title>Book C</title><price>503</price></book>
+</bookList>
+`;
+
+var parser = new DOMParser();
+var xmlDoc = parser.parseFromString(text,"text/xml");
+
+var bookName = getValueByXPath(xmlDoc, "/bookList/book[1]/title", null);
+document.getElementById("demo").innerHTML += bookName + "<hr>";
+
+var bookList = getElementsByXPath(xmlDoc, 
+  "/bookList/book", null);
+
+for (var book of bookList) {
+    var bookData = {
+        id: getValueByXPath(xmlDoc, "./@id", book),
+        name: getValueByXPath(xmlDoc, "./title", book),
+        price: getValueByXPath(xmlDoc, "./price", book)
+    }
+    document.getElementById("demo").innerHTML += JSON.stringify(bookData) + "<br>";
+}
+
+</script>
+
+</body>
+</html>
